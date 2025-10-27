@@ -2,7 +2,7 @@ directories:
   output: dist
   buildResources: build
 appId: com.woliul.uptimevault
-productName: uptimevault
+productName: UptimeVault
 icon: ./assets/network.png
 win:
   target: nsis
@@ -23,4 +23,4 @@ publish:
   - provider: github
     owner: woliul
     repo: uptimevault
-electronVersion: 28.3.3
+electronVersion: 22.3.27

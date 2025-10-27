@@ -1,6 +1,6 @@
 {
   "name": "uptimevault",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "An offline network uptime monitor develop by Woliul Hasan.",
   "main": "main.js",
   "scripts": {
@@ -16,12 +16,12 @@
   "author": "Woliul",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^28.0.0",
-    "electron-builder": "^24.9.1"
+    "electron": "^22.0.0",
+    "electron-builder": "^24.2.1"
   },
   "build": {
     "appId": "com.woliul.uptimevault",
-    "productName": "uptimevault",
+    "productName": "UptimeVault",
     "icon": "./assets/network.png",
     "win": {
       "target": "nsis"
