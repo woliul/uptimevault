@@ -1,4 +1,5 @@
 # 🚀 UptimeVault: The Ultimate ISP Proof Generator
+[![CI & GitHub Pages Deploy](https://github.com/woliul/uptimevault/actions/workflows/node.js.yml/badge.svg)](https://github.com/woliul/uptimevault/actions/workflows/node.js.yml) [![pages-build-deployment](https://github.com/woliul/uptimevault/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/woliul/uptimevault/actions/workflows/pages/pages-build-deployment)
 
 A simple, powerful, and **offline-first system** for tracking, logging, and proving every ISP connectivity drop. Use it as a mobile-friendly web tool or a dedicated cross-platform desktop app.
 
