@@ -1,0 +1,112 @@
+name: CI & GitHub Pages Deploy
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # ====================================================
+  # JOB 1: Test Dependencies, Electron v44, & 404 Links
+  # ====================================================
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (v24 LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test Electron 44 Window & Dependency Compatibility
+        run: |
+          xvfb-run --auto-servernum npx electron -e "
+            const { app, BrowserWindow } = require('electron');
+
+            // 1. Verify major version is strictly 44
+            const major = parseInt(process.versions.electron.split('.')[0], 10);
+            console.log('Testing Electron version:', process.versions.electron);
+            console.log('Embedded Node.js version:', process.versions.node);
+
+            if (major !== 44) {
+              console.error('Failure: Expected Electron 44.x, but found v' + process.versions.electron);
+              process.exit(1);
+            }
+
+            // 2. Validate Chromium window creation and rendering cycle
+            app.whenReady().then(() => {
+              const win = new BrowserWindow({
+                show: false,
+                webPreferences: {
+                  nodeIntegration: false,
+                  contextIsolation: true
+                }
+              });
+
+              win.loadURL('about:blank').then(() => {
+                console.log('Electron 44 initialized and window loaded successfully.');
+                app.quit();
+                process.exit(0);
+              });
+            }).catch(err => {
+              console.error('Electron runtime failed to initialize:', err);
+              process.exit(1);
+            });
+          "
+
+      - name: Run test suite
+        run: xvfb-run --auto-servernum npm test --if-present
+
+      - name: Build Web / Static Artifacts
+        run: npm run build
+
+      - name: Add .nojekyll bypass
+        # Prevents GitHub Pages/Jekyll from ignoring folders starting with underscores (_next, _astro, etc.)
+        run: touch dist/.nojekyll
+
+      - name: Check for 404 Asset Errors
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # Checks all built HTML files offline to catch broken relative/absolute paths
+          args: --offline --root-dir "dist" "dist/**/*.html"
+          fail: true
+
+      - name: Upload GitHub Pages artifact
+        # Only stages the bundle on pushes to master (skips on PRs)
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+  # ====================================================
+  # JOB 2: Deploy to GitHub Pages (Only runs if Job 1 passes)
+  # ====================================================
+  deploy:
+    needs: test-and-build
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
