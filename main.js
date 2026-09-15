@@ -52,12 +52,14 @@ async function initializeDatabase() {
     // Manually load the WASM binary using a reliable path
     let sql;
     try {
-        // Locate the sql-wasm.wasm file. In a packaged Electron app, it's often in resources.
-        const WASM_PATH = path.join(__dirname, 'node_modules', 'sql.js', 'dist', 'sql-wasm.wasm');
+        // Locate the sql-wasm.wasm file. Prioritize local sql/ directory, then node_modules
+        const localWasmPath = path.join(__dirname, 'sql', 'sql-wasm.wasm');
+        const nodeModulesWasmPath = path.join(__dirname, 'node_modules', 'sql.js', 'dist', 'sql-wasm.wasm');
+        const wasmPath = fs.existsSync(localWasmPath) ? localWasmPath : nodeModulesWasmPath;
 
         let wasmBinary;
-        if (fs.existsSync(WASM_PATH)) {
-            wasmBinary = fs.readFileSync(WASM_PATH);
+        if (fs.existsSync(wasmPath)) {
+            wasmBinary = fs.readFileSync(wasmPath);
             sql = await initSqlJs({ wasmBinary: wasmBinary });
         } else {
             // Fallback for different packaging structures or development
@@ -135,7 +137,7 @@ async function autoHourlyBackup() {
 
         // Optional: Notify the renderer process of successful backup
         const mainWindow = BrowserWindow.getAllWindows()[0];
-        if (mainWindow) {
+        if (mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send('backup-status', `Last Auto Backup: ${now.toLocaleTimeString()}`);
         }
 
@@ -280,7 +282,8 @@ ipcMain.handle('export-log-csv', async () => {
     const defaultPath = app.getPath('downloads') + `/network_log_export_${dateStr}.csv`;
 
     // 2. Show the native save dialog
-    const { canceled, filePath } = await dialog.showSaveDialog(BrowserWindow.getFocusedWindow(), {
+    const parentWindow = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
+    const { canceled, filePath } = await dialog.showSaveDialog(parentWindow, {
         title: 'Export Network Log CSV',
         defaultPath: defaultPath,
         buttonLabel: 'Save CSV',

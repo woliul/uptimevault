@@ -15,12 +15,12 @@
 ## 2. Tech Stack & Dependencies
 
 ### Core Frameworks & Runtime
-- **Runtime**: Node.js (LTS recommended)
-- **Desktop Wrapper**: Electron (`^22.0.0`)
-- **App Builder / Packager**: `electron-builder` (`^24.2.1`) (targets Windows NSIS, macOS DMG, Linux AppImage)
+- **Runtime**: Node.js (v26+ compatible, LTS recommended)
+- **Desktop Wrapper**: Electron (`^34.0.0`, verified `34.5.8`)
+- **App Builder / Packager**: `electron-builder` (`^25.1.8`) (targets Windows NSIS, macOS DMG, Linux AppImage)
 
 ### Database & Storage
-- **In-Memory Engine**: `sql.js` (`^1.13.0`) — SQLite compiled to WebAssembly (WASM)
+- **In-Memory Engine**: `sql.js` (`^1.13.0`, verified `1.14.2`) — SQLite compiled to WebAssembly (WASM)
 - **Desktop Storage**: Node `fs` writing SQLite binary buffers to `userData/network_log.db` and hourly backups to `userData/network_backups/`
 - **Web Storage**: `IndexedDB` key-value store (`networkMonitorDB` / `sqliteData`) storing serialized `sql.js` binary buffers
 
@@ -31,9 +31,9 @@
 - **Audio Assets**: Local alert audio files (`assets/alert.mp3`)
 
 ### Utilities & Libraries
-- **Date Handling**: `date-fns` (`^4.1.0`)
-- **Logging**: `electron-log` (`^5.4.3`)
-- **Auto-Updates**: `electron-updater` (`^6.6.2`)
+- **Date Handling**: `date-fns` (`^4.1.0`, verified `4.4.0`)
+- **Logging**: `electron-log` (`^5.4.4`)
+- **Auto-Updates**: `electron-updater` (`^6.8.9`)
 
 ---
 
@@ -86,10 +86,16 @@ uptimevault/
   - ✅ State transition logging (avoiding duplicate pings; logs on status change).
   - ✅ Complete SQLite database schema (`network_log` / `network_logs` with `id`, `timestamp`, `status`).
   - ✅ Local persistence in both Electron (`userData`) and browser (`IndexedDB`).
-  - ✅ CSV export with formatted timestamps.
+  - ✅ CSV export with formatted timestamps and native dialog fallback.
   - ✅ Responsive dashboard UI with pulsing dot status indicators.
+  - ✅ **Modernized Runtime & Dependencies**:
+    - Electron upgraded from `^22.0.0` (deprecated) to stable `^34.0.0` (`34.5.8`).
+    - `electron-builder` upgraded to `^25.1.8`, `electron-updater` to `^6.8.9`, `electron-log` to `^5.4.4`.
+    - Synchronized `sql/sql-wasm.wasm` and `sql/sql-wasm.js` with `sql.js@1.14.2` resolving the `TypeError: y is not a function` Emscripten mismatch.
+    - Hardened `main.js`: enhanced WASM local path loading, window destruction check (`!mainWindow.isDestroyed()`), and safe dialog parenting.
+    - Updated `package.json` `build.files` to include `preload.js` for ASAR builds.
+    - Added root `.gitignore` to prevent tracking `node_modules/`, `.DS_Store`, and local database files.
 - **In-Progress / Upcoming Initiatives**:
-  - 🔄 Dependency modernization (Electron runtime upgrades and native packaging updates).
   - 🔄 Integrating sound alerts (`alert.mp3`) on connectivity drops/restorations.
   - 🔄 Migration of CDN-based Tailwind / Phosphor dependencies to local bundled assets for 100% offline self-containment.
   - 🔄 Native auto-update wiring with `electron-updater` and GitHub releases.

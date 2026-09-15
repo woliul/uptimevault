@@ -1,0 +1,15 @@
+# Dependency directories
+node_modules/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Database local development persistence
+*.db
+node_modules
