@@ -121,8 +121,9 @@ async function initializeDatabase() {
 async function autoHourlyBackup() {
     if (!db) return; // Exit if DB not ready
 
+    const pad = (n) => String(n).padStart(2, '0');
     const now = new Date();
-    const dateStr = now.toISOString().replace(/[:.]/g, '-');
+    const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
 
     // 1. Save to the main file (Persistence)
     performBackup(dbPath);
@@ -277,9 +278,10 @@ ipcMain.handle('export-log-csv', async () => {
         return `${log[0]},"${log[1]}",${log[2]}`;
     });
 
-    const csvContent = [headers.join(','), ...csvRows].join('\n');
-    const dateStr = new Date().toISOString().slice(0, 10);
-    const defaultPath = app.getPath('downloads') + `/network_log_export_${dateStr}.csv`;
+    const pad = (n) => String(n).padStart(2, '0');
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+    const defaultPath = path.join(app.getPath('downloads'), `network_log_${dateStr}.csv`);
 
     // 2. Show the native save dialog
     const parentWindow = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];

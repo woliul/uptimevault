@@ -79,7 +79,7 @@ uptimevault/
 
 ## 4. Current Development State
 
-- **Current Branch**: `chore/modernize-dependencies`
+- **Current Branch**: `fix/desktop-ui-and-csv-export`
 - **Release Version**: `1.0.6`
 - **Working / Verified Features**:
   - ✅ 1-second auto-monitoring ping cycle with timeout abort controllers.
@@ -95,6 +95,10 @@ uptimevault/
     - Hardened `main.js`: enhanced WASM local path loading, window destruction check (`!mainWindow.isDestroyed()`), and safe dialog parenting.
     - Updated `package.json` `build.files` to include `preload.js` for ASAR builds.
     - Added root `.gitignore` to prevent tracking `node_modules/`, `.DS_Store`, and local database files.
+  - ✅ **Desktop UI & CSV Export Fixes (Issue #9)**:
+    - Conditionally hides redundant "Download Desktop App" header banner when running inside the Electron desktop shell (`window.api`).
+    - Formats CSV export filenames using local system time (`network_log_YYYY-MM-DD_HH-mm-ss.csv`) across both `main.js` and `index.html`.
+    - Uses local system timestamps for archival auto-backup filenames (`network_log_backup_YYYY-MM-DD_HH-mm-ss.db`).
 - **In-Progress / Upcoming Initiatives**:
   - 🔄 Integrating sound alerts (`alert.mp3`) on connectivity drops/restorations.
   - 🔄 Migration of CDN-based Tailwind / Phosphor dependencies to local bundled assets for 100% offline self-containment.

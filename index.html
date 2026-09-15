@@ -132,7 +132,7 @@
 <header class="text-center mb-8 md:mb-12">
     <h1 class="text-3xl md:text-4xl text-gray-700 font-bold">UptimeVault</h1>
     <p class="text-text-sm-400 mt-2">Stop Guessing. Start Proving. Your undeniable, local connection history.</p>
-    <div class="mt-6">
+    <div id="desktop-download-container" class="mt-6">
         <a href="https://github.com/woliul/uptimevault/releases/download/v1.0.6/UptimeVault.Setup.1.0.6.exe" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-200 shadow-md hover:shadow-lg">
             <i class="ph ph-download mr-2 text-lg"></i>
             Download Desktop App (v1.0.6)
@@ -230,6 +230,12 @@
     const exportLogsBtn = document.getElementById('export-logs-btn');
     const logTableBody = document.getElementById('log-table-body');
     const copyright = document.getElementById('copyright-year');
+    const desktopDownloadContainer = document.getElementById('desktop-download-container');
+
+    // Conditionally hide desktop app download button when running inside the Electron shell
+    if (window.api && desktopDownloadContainer) {
+        desktopDownloadContainer.style.display = 'none';
+    }
 
     // ==============================
     // 1. IndexedDB Persistence Logic (UNMODIFIED)
@@ -454,9 +460,11 @@
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
 
-            const date = new Date().toISOString().slice(0, 19).replace('T', '_').replace(/:/g, '-');
+            const pad = (n) => String(n).padStart(2, '0');
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
             link.setAttribute("href", url);
-            link.setAttribute("download", `network_log_${date}.csv`);
+            link.setAttribute("download", `network_log_${dateStr}.csv`);
 
             document.body.appendChild(link);
             link.click();
